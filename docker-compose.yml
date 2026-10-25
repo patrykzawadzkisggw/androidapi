@@ -5,9 +5,12 @@ services:
     ports:
       - "${PORT:-3000}:3000"
     environment:
+      NODE_ENV: production
       OPENROUTER_API_KEY: ${OPENROUTER_API_KEY}
       OPENROUTER_MODEL: ${OPENROUTER_MODEL:-openai/gpt-4o-mini}
       PORT: 3000
+    volumes:
+      - /etc/product-api/tls:/certs:ro
     restart: unless-stopped
     read_only: true
 
@@ -15,7 +18,6 @@ services:
       - ALL
 
     security_opt:
-      - apparmor=product-api
       - no-new-privileges
 
     tmpfs:

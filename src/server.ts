@@ -3,6 +3,8 @@ import express, { type Request, type Response } from "express";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import { z } from "zod";
+import { createServer } from "node:https";
+import { readFileSync } from "node:fs";
 
 const port = Number(process.env.PORT ?? 3000);
 const openRouterApiKey = process.env.OPENROUTER_API_KEY;
@@ -161,6 +163,15 @@ app.all("/mcp", async (request: Request, response: Response) => {
   }
 });
 
-app.listen(port, () => {
-  console.log(`Product API listening on http://localhost:${port}`);
+const httpsServer = createServer(
+  {
+    key: readFileSync("/certs/privkey.pem"),
+    cert: readFileSync("/certs/fullchain.pem"),
+    minVersion: "TLSv1.2",
+  },
+  app,
+);
+
+httpsServer.listen(port, "0.0.0.0", () => {
+  console.log(`Product API listening on HTTPS port ${port}`);
 });
